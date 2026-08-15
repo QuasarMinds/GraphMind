@@ -140,7 +140,7 @@ Don't build everything simultaneously. Build in this order:
 
 ### 5. Prerequisites
 
-Before serious development, your team should understand:
+Before serious development, our team should understand:
 
 * **Programming:** Python, Git/GitHub, CLI development, JSON, REST APIs
 * **Code analysis:** Parsing, AST, Tree-sitter, Symbol extraction, Static code analysis
