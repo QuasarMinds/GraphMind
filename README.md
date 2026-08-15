@@ -1,7 +1,7 @@
 # GraphMind
 Final Year Project
 
-```markdown
+
 # GraphMind: Detailed Architecture and Implementation Plan
 
 Absolutely. Since the project is already finalized, let's stop discussing whether GraphMind is a good idea and turn it into an actual implementation plan.
