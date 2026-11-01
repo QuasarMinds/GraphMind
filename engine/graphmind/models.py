@@ -9,7 +9,7 @@ retrieval results, and context ledger entries.
 from __future__ import annotations
 
 import hashlib
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 from uuid import uuid4
@@ -87,8 +87,8 @@ class GraphNode(BaseModel):
     node_type: NodeType
     name: str
     metadata: Dict[str, Any] = Field(default_factory=dict)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> Dict[str, Any]:
         return self.model_dump()
@@ -247,8 +247,8 @@ class LedgerEntry(BaseModel):
     symbol_name: Optional[str] = None
     content_hash: str
     version: int = 1
-    first_seen: datetime = Field(default_factory=datetime.utcnow)
-    last_seen: datetime = Field(default_factory=datetime.utcnow)
+    first_seen: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_seen: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     representation_level: RepresentationLevel = RepresentationLevel.UNLOADED
     related_entities: List[str] = Field(default_factory=list)
     status: ContextStatus = ContextStatus.ACTIVE

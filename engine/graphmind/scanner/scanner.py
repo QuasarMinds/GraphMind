@@ -142,10 +142,7 @@ class RepositoryScanner:
 
             if entry.is_dir():
                 if entry.name in self._excluded_dirs or entry.name.startswith("."):
-                    # Allow .git check but skip all hidden dirs and excluded dirs
-                    # We explicitly keep .github, .vscode etc. names in excluded_dirs
-                    if entry.name in self._excluded_dirs:
-                        continue
+                    continue
                 result.total_dirs += 1
                 yield from self._walk(entry, result)
 

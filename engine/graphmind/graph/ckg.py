@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Set
 from uuid import uuid4
@@ -73,8 +73,8 @@ class NodeRecord(Base):
     name = Column(String, nullable=False, index=True)
     repo_id = Column(String, index=True)
     metadata_json = Column(Text, default="{}")
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
 
 class EdgeRecord(Base):
@@ -192,7 +192,7 @@ class CodeKnowledgeGraph:
             existing = session.get(NodeRecord, node.id)
             if existing:
                 existing.metadata_json = json.dumps(meta_clean, default=str)
-                existing.updated_at = datetime.utcnow()
+                existing.updated_at = datetime.now(timezone.utc)
             else:
                 session.add(NodeRecord(
                     id=node.id,
@@ -496,7 +496,12 @@ class CodeKnowledgeGraph:
             node_counts[ntype] = node_counts.get(ntype, 0) + 1
             lang = attrs.get("language")
             if lang:
-                languages.add(str(lang))
+                # language may be stored as enum ("Language.PYTHON") or value ("python")
+                lang_str = str(lang)
+                if "." in lang_str:
+                    lang_str = lang_str.split(".")[-1].lower()
+                if lang_str and lang_str != "unknown":
+                    languages.add(lang_str)
 
         for src, tgt, data in self._graph.edges(data=True):
             if repo_id:
@@ -514,7 +519,7 @@ class CodeKnowledgeGraph:
             node_counts=node_counts,
             edge_counts=edge_counts,
             languages=sorted(languages),
-            indexed_at=datetime.utcnow(),
+            indexed_at=datetime.now(timezone.utc),
             parse_errors=0,
             unsupported_files=0,
         )

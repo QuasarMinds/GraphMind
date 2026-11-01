@@ -174,6 +174,11 @@ class GraphMindEngine:
 
         for file_info in parseable:
             progress.current_file = file_info.relative_path
+            # Skip files whose content hasn't changed (incremental reindex)
+            if not force_reindex and not self._needs_reindex(file_info, repo_id):
+                progress.processed += 1
+                progress.skipped += 1
+                continue
             file_node, nodes, edges = self._index_file(file_info, repo_id, repo_path)
             all_nodes.extend(nodes)
             all_edges.extend(edges)
@@ -239,9 +244,18 @@ class GraphMindEngine:
 
     # ── Private Helpers ───────────────────────────────────────────────────────
 
+    def _needs_reindex(self, file_info: FileInfo, repo_id: str) -> bool:
+        """Return True if this file is new or its content hash has changed."""
+        file_id = compute_hash(f"{repo_id}::{file_info.relative_path}")
+        existing = self._graph.get_node(file_id)
+        if not existing:
+            return True
+        return existing.get("content_hash", "") != file_info.content_hash
+
     def _index_directories(
         self, scan_result: ScanResult, repo_id: str, repo_root: Path
     ) -> None:
+        from graphmind.models import GraphEdge, EdgeType  # local import to avoid cycle
         seen_dirs: set = set()
         for file_info in scan_result.files:
             parts = Path(file_info.relative_path).parts
@@ -252,7 +266,9 @@ class GraphMindEngine:
                 seen_dirs.add(dir_rel)
                 dir_id = compute_hash(f"{repo_id}::{dir_rel}")
                 parent_rel = "/".join(parts[:depth]) if depth > 0 else None
-                parent_id = compute_hash(f"{repo_id}::{parent_rel}") if parent_rel else repo_id
+                parent_id = (
+                    compute_hash(f"{repo_id}::{parent_rel}") if parent_rel else repo_id
+                )
 
                 dir_node = DirectoryNode(
                     id=dir_id,
@@ -262,6 +278,17 @@ class GraphMindEngine:
                     parent_id=parent_id,
                 )
                 self._graph.add_node(dir_node)
+                # CONTAINS edge: parent (repo or dir) → this directory
+                try:
+                    self._graph.add_edge(
+                        GraphEdge(
+                            source_id=parent_id,
+                            target_id=dir_id,
+                            edge_type=EdgeType.CONTAINS,
+                        )
+                    )
+                except Exception:
+                    pass  # parent may not yet exist; bulk-add will not re-check
 
     def _index_file(
         self, file_info: FileInfo, repo_id: str, repo_root: Path
@@ -282,7 +309,21 @@ class GraphMindEngine:
         )
 
         nodes = [file_node]
-        edges = []
+        # CONTAINS edge: parent directory → file
+        parts = file_info.relative_path.split("/")
+        parent_dir_id = (
+            compute_hash(f"{repo_id}::{'/'.join(parts[:-1])}")
+            if len(parts) > 1
+            else repo_id
+        )
+        from graphmind.models import GraphEdge, EdgeType as ET  # local import
+        edges = [
+            GraphEdge(
+                source_id=parent_dir_id,
+                target_id=file_id,
+                edge_type=ET.CONTAINS,
+            )
+        ]
 
         if not self._parser.is_available():
             return file_node, nodes, edges
