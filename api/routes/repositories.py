@@ -37,6 +37,13 @@ class FileTreeItem(BaseModel):
     parse_status: Optional[str] = None
 
 
+def _coerce_language_stats(stats: dict | None) -> dict | None:
+    """Ensure language stat values are integers (they may be stored as strings)."""
+    if not stats:
+        return stats
+    return {k: int(v) for k, v in stats.items()}
+
+
 @router.get("", response_model=List[RepositoryResponse])
 def list_repositories():
     engine = get_engine()
@@ -47,7 +54,7 @@ def list_repositories():
             name=r.get("name", ""),
             path=r.get("path", ""),
             total_files=r.get("total_files"),
-            language_stats=r.get("language_stats"),
+            language_stats=_coerce_language_stats(r.get("language_stats")),
         )
         for r in repos
     ]
@@ -85,7 +92,7 @@ def get_repository(repo_id: str):
         name=r.get("name", ""),
         path=r.get("path", ""),
         total_files=r.get("total_files"),
-        language_stats=r.get("language_stats"),
+        language_stats=_coerce_language_stats(r.get("language_stats")),
     )
 
 

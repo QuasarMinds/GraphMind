@@ -559,7 +559,10 @@ class CodeKnowledgeGraph:
             elif isinstance(v, list):
                 result[k] = [str(item) if not isinstance(item, (str, int, float, bool)) else item for item in v]
             elif isinstance(v, dict):
-                result[k] = {str(kk): str(vv) for kk, vv in v.items()}
+                result[k] = {
+                    str(kk): vv if isinstance(vv, (str, int, float, bool, type(None))) else str(vv)
+                    for kk, vv in v.items()
+                }
             else:
                 result[k] = str(v)
         return result
