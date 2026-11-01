@@ -1,0 +1,243 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base Resets ──────────────────────────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #0f1117;
+  color: #e8eaf0;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbars ───────────────────────────────────────────────────────────── */
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2d3148; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3d4266; }
+
+/* ── Layout Components ───────────────────────────────────────────────────── */
+
+@layer components {
+  .sidebar {
+    @apply flex flex-col bg-bg-surface border-r border-border w-60 shrink-0 overflow-y-auto;
+  }
+
+  .main-content {
+    @apply flex-1 overflow-y-auto bg-bg-base;
+  }
+
+  .panel {
+    @apply bg-bg-card border border-border rounded-lg;
+  }
+
+  .panel-header {
+    @apply flex items-center justify-between px-4 py-3 border-b border-border;
+  }
+
+  .panel-body {
+    @apply p-4;
+  }
+
+  /* ── Navigation ─────────────────────────────────────────────────────────── */
+
+  .nav-item {
+    @apply flex items-center gap-2.5 px-3 py-2 rounded-md text-text-secondary
+           hover:bg-bg-hover hover:text-text-primary transition-colors duration-150
+           cursor-pointer text-sm font-medium;
+  }
+
+  .nav-item.active {
+    @apply bg-accent-muted text-accent text-text-primary;
+  }
+
+  .nav-section-label {
+    @apply px-3 py-1.5 text-2xs font-semibold uppercase tracking-widest text-text-muted;
+  }
+
+  /* ── Buttons ────────────────────────────────────────────────────────────── */
+
+  .btn {
+    @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium
+           transition-all duration-150 cursor-pointer select-none;
+  }
+
+  .btn-primary {
+    @apply btn bg-accent text-white hover:bg-accent-dim active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply btn bg-bg-card border border-border text-text-secondary
+           hover:border-border-strong hover:text-text-primary active:scale-95;
+  }
+
+  .btn-ghost {
+    @apply btn text-text-secondary hover:bg-bg-hover hover:text-text-primary;
+  }
+
+  .btn-danger {
+    @apply btn bg-status-error/10 text-status-error border border-status-error/30
+           hover:bg-status-error/20 active:scale-95;
+  }
+
+  /* ── Form elements ──────────────────────────────────────────────────────── */
+
+  .input {
+    @apply w-full bg-bg-base border border-border rounded-md px-3 py-2
+           text-sm text-text-primary placeholder:text-text-muted
+           focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30
+           transition-colors duration-150;
+  }
+
+  .select {
+    @apply input appearance-none cursor-pointer;
+  }
+
+  /* ── Badges ─────────────────────────────────────────────────────────────── */
+
+  .badge {
+    @apply inline-flex items-center px-1.5 py-0.5 rounded text-2xs font-medium;
+  }
+
+  .badge-blue   { @apply badge bg-accent/15 text-accent; }
+  .badge-purple { @apply badge bg-purple-500/15 text-purple-400; }
+  .badge-green  { @apply badge bg-status-success/15 text-status-success; }
+  .badge-amber  { @apply badge bg-status-warning/15 text-status-warning; }
+  .badge-red    { @apply badge bg-status-error/15 text-status-error; }
+  .badge-grey   { @apply badge bg-text-muted/15 text-text-muted; }
+
+  /* ── Stat card ──────────────────────────────────────────────────────────── */
+
+  .stat-card {
+    @apply panel p-4 flex flex-col gap-1;
+  }
+
+  .stat-label {
+    @apply text-xs text-text-muted font-medium uppercase tracking-wide;
+  }
+
+  .stat-value {
+    @apply text-2xl font-semibold text-text-primary;
+  }
+
+  .stat-sub {
+    @apply text-xs text-text-secondary;
+  }
+
+  /* ── Code blocks ────────────────────────────────────────────────────────── */
+
+  .code-block {
+    @apply font-mono text-xs bg-bg-base border border-border rounded-md p-3
+           overflow-x-auto text-text-primary;
+  }
+
+  /* ── Node type chip ──────────────────────────────────────────────────────── */
+
+  .node-chip {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono font-medium;
+  }
+
+  /* ── Status indicator ───────────────────────────────────────────────────── */
+
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+
+  .status-dot-ok      { @apply status-dot bg-status-success animate-pulse-dot; }
+  .status-dot-error   { @apply status-dot bg-status-error; }
+  .status-dot-warning { @apply status-dot bg-status-warning; }
+  .status-dot-loading { @apply status-dot bg-accent animate-pulse-dot; }
+
+  /* ── Progress bar ───────────────────────────────────────────────────────── */
+
+  .progress-track {
+    @apply w-full bg-bg-base rounded-full overflow-hidden;
+    height: 4px;
+  }
+
+  .progress-fill {
+    @apply h-full bg-accent rounded-full transition-all duration-300;
+  }
+
+  /* ── Empty state ─────────────────────────────────────────────────────────── */
+
+  .empty-state {
+    @apply flex flex-col items-center justify-center gap-3 py-16 text-center;
+  }
+
+  .empty-icon {
+    @apply w-12 h-12 text-text-muted;
+  }
+
+  /* ── Divider ────────────────────────────────────────────────────────────── */
+
+  .divider {
+    @apply border-t border-border my-4;
+  }
+
+  /* ── Table ──────────────────────────────────────────────────────────────── */
+
+  .table-wrapper {
+    @apply overflow-x-auto;
+  }
+
+  .data-table {
+    @apply w-full text-sm;
+  }
+
+  .data-table th {
+    @apply text-left text-xs font-medium text-text-muted uppercase tracking-wide
+           px-3 py-2 border-b border-border;
+  }
+
+  .data-table td {
+    @apply px-3 py-2 border-b border-border/50 text-text-secondary;
+  }
+
+  .data-table tr:hover td {
+    @apply bg-bg-hover text-text-primary;
+  }
+
+  /* ── Tooltip ────────────────────────────────────────────────────────────── */
+
+  .tooltip {
+    @apply absolute z-50 px-2 py-1 text-xs bg-bg-card border border-border
+           rounded shadow-card text-text-primary pointer-events-none;
+  }
+}
+
+/* ── Graph canvas ─────────────────────────────────────────────────────────── */
+
+#cy-container {
+  width: 100%;
+  height: 100%;
+  background: #0f1117;
+}
+
+/* ── Custom animations for node traversal ────────────────────────────────── */
+
+@keyframes nodeAppear {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.traversal-node-enter {
+  animation: nodeAppear 0.25s ease-out forwards;
+}
